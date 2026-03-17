@@ -60,6 +60,12 @@ const routes = [
     meta: { requiresAuth: true }
   },
   {
+    path: '/programs/:programId/classes/:classId/courses',
+    name: 'ClassCourses',
+    component: () => import('@/views/ClassCoursesView.vue'),
+    meta: { requiresAuth: true }
+  },
+  {
     path: '/programs/:programId/classes/:classId/stages/:stageId',
     name: 'StageDetails',
     component: StageDetailsView,
@@ -78,7 +84,6 @@ const router = createRouter({
   routes
 });
 
-// Guard de navegação para proteger rotas que requerem autenticação
 router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !authService.isAuthenticated()) {
     next('/');

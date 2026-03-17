@@ -7,46 +7,38 @@
       <span v-if="secondary" class="legend-dot secondary"></span>
       <span v-if="secondary" class="legend-label">Avaliação X</span>
     </div>
-
     <div class="chart-content">
       <!-- Gráfico de barras -->
       <div class="bars-section">
-        <!-- Dropdown de filtro -->
         <div class="filter-row">
           <select class="filter-select">
             <option>xxxxxxx</option>
           </select>
         </div>
-
         <div v-if="classes.length === 0" class="no-data">
           Nenhuma turma disponível
         </div>
-
         <div v-else class="bars-list">
-          <div v-for="(item, index) in chartItems" :key="index" class="bar-row">
+          <div
+            v-for="(item, index) in chartItems"
+            :key="index"
+            class="bar-row clickable"
+            @click="selectClass(item)"
+          >
             <span class="bar-label">{{ item.label }}</span>
             <div class="bar-track">
-              <!-- Barra principal -->
-              <div
-                class="bar-fill"
-                :style="{ width: item.progress + '%', background: color }"
-              ></div>
-              <!-- Marcador de data -->
+              <div class="bar-fill" :style="{ width: item.progress + '%', background: color }"></div>
               <span class="bar-date primary-date">{{ item.date }}</span>
               <span v-if="secondary" class="bar-date secondary-date" :style="{ left: item.progress2 + '%' }">{{ item.date }}</span>
-              <!-- Ponto de marcador -->
               <span class="bar-dot" :style="{ left: item.progress + '%', background: color }"></span>
               <span v-if="secondary" class="bar-dot secondary-dot" :style="{ left: item.progress2 + '%' }"></span>
             </div>
           </div>
-
-          <!-- Eixo X -->
           <div class="x-axis">
             <span v-for="n in [10,20,30,40,50,60,70,80,90,100]" :key="n" class="axis-label">{{ n }}%</span>
           </div>
         </div>
       </div>
-
       <!-- Tabela de ranking -->
       <div class="ranking-section">
         <div class="ranking-header">
@@ -63,7 +55,6 @@
             </svg>
           </button>
         </div>
-
         <div class="ranking-table">
           <div class="ranking-head">
             <span>TURMA</span>
@@ -72,8 +63,9 @@
           <div
             v-for="(item, index) in rankingItems"
             :key="index"
-            class="ranking-row"
+            class="ranking-row clickable"
             :class="{ 'row-even': index % 2 === 0 }"
+            @click="selectClass(item)"
           >
             <span class="turma-name">{{ item.name }}</span>
             <span class="turma-pct">{{ item.pct }}%</span>
@@ -86,6 +78,7 @@
 
 <script>
 import { computed } from 'vue';
+import { useRouter } from 'vue-router';
 
 export default {
   name: 'StageChart',
@@ -96,22 +89,25 @@ export default {
     secondary: { type: Boolean, default: false }
   },
   setup(props) {
+    const router = useRouter();
 
     const chartItems = computed(() => {
       if (props.classes.length === 0) {
-        // dados demo
         return [
-          { label: 'BA\nUFBA', progress: 95, progress2: 60, date: 'dd/mm/aaaa' },
-          { label: 'AL\nUFAL', progress: 55, progress2: 40, date: 'dd/mm/aaaa' },
-          { label: 'MG\nUFMG', progress: 10, progress2: 5, date: 'dd/mm/aaaa' },
-          { label: 'PR\nUFPR', progress: 35, progress2: 20, date: 'dd/mm/aaaa' },
+          { label: 'BA\nUFBA', progress: 95, progress2: 60, date: 'dd/mm/aaaa', classId: null, name: 'BA - UFBA' },
+          { label: 'AL\nUFAL', progress: 55, progress2: 40, date: 'dd/mm/aaaa', classId: null, name: 'AL - UFAL' },
+          { label: 'MG\nUFMG', progress: 10, progress2: 5,  date: 'dd/mm/aaaa', classId: null, name: 'MG - UFMG' },
+          { label: 'PR\nUFPR', progress: 35, progress2: 20, date: 'dd/mm/aaaa', classId: null, name: 'PR - UFPR' },
         ];
       }
       return props.classes.map((c, i) => {
         const uf = c.location?.state || '??';
-        const acronym = c.location?.acronym || c.code || `T${i+1}`;
+        const acronym = c.location?.acronym || c.code || `T${i + 1}`;
         return {
           label: `${uf}\n${acronym}`,
+          name: `${uf} - ${acronym}`,
+          classId: c.id,
+          programId: c.program?.id,
           progress: Math.floor(Math.random() * 80) + 10,
           progress2: Math.floor(Math.random() * 50) + 5,
           date: c.endDate ? new Date(c.endDate).toLocaleDateString('pt-BR') : 'dd/mm/aaaa'
@@ -122,28 +118,40 @@ export default {
     const rankingItems = computed(() => {
       if (props.classes.length === 0) {
         return [
-          { name: 'BA - UFBA', pct: 98 },
-          { name: 'AL - UFAL', pct: 98 },
-          { name: 'TURMA X', pct: 98 },
-          { name: 'TURMA X', pct: 98 },
-          { name: 'TURMA X', pct: 98 },
-          { name: 'TURMA X', pct: 98 },
+          { name: 'BA - UFBA', pct: 98, classId: null },
+          { name: 'AL - UFAL', pct: 98, classId: null },
+          { name: 'TURMA X',   pct: 98, classId: null },
+          { name: 'TURMA X',   pct: 98, classId: null },
+          { name: 'TURMA X',   pct: 98, classId: null },
+          { name: 'TURMA X',   pct: 98, classId: null },
         ];
       }
       return props.classes.map((c, i) => ({
         name: c.location?.acronym ? `${c.location.state} - ${c.location.acronym}` : c.code,
-        pct: Math.floor(Math.random() * 20) + 80
+        pct: Math.floor(Math.random() * 20) + 80,
+        classId: c.id,
+        programId: c.program?.id
       })).sort((a, b) => b.pct - a.pct);
     });
 
-    return { chartItems, rankingItems };
+    const selectClass = (item) => {
+      if (!item.classId) return;
+      router.push({
+        name: 'ClassCourses',
+        params: {
+          programId: item.programId,
+          classId: item.classId
+        }
+      });
+    };
+
+    return { chartItems, rankingItems, selectClass };
   }
 };
 </script>
 
 <style scoped>
 .stage-chart { width: 100%; }
-
 .chart-legend {
   display: flex;
   align-items: center;
@@ -151,20 +159,14 @@ export default {
   margin-bottom: 16px;
   justify-content: flex-end;
 }
-.legend-dot {
-  width: 14px; height: 14px;
-  border-radius: 3px;
-}
+.legend-dot { width: 14px; height: 14px; border-radius: 3px; }
 .legend-dot.secondary { background: #667eea; }
 .legend-label { font-size: 13px; color: #444; }
-
 .chart-content {
   display: grid;
   grid-template-columns: 1fr 280px;
   gap: 24px;
 }
-
-/* Bars */
 .filter-row { margin-bottom: 16px; }
 .filter-select {
   border: 1px solid #dde6f0;
@@ -174,15 +176,18 @@ export default {
   color: #444;
   background: white;
 }
-
 .bars-list { display: flex; flex-direction: column; gap: 12px; }
-
 .bar-row {
   display: flex;
   align-items: center;
   gap: 12px;
 }
-
+.clickable {
+  cursor: pointer;
+  border-radius: 6px;
+  transition: background 0.15s;
+}
+.bar-row.clickable:hover { background: #f0f6ff; }
 .bar-label {
   font-size: 11px;
   color: #555;
@@ -193,7 +198,6 @@ export default {
   line-height: 1.3;
   flex-shrink: 0;
 }
-
 .bar-track {
   flex: 1;
   height: 22px;
@@ -202,13 +206,11 @@ export default {
   position: relative;
   overflow: visible;
 }
-
 .bar-fill {
   height: 100%;
   border-radius: 4px;
   transition: width 0.6s ease;
 }
-
 .bar-date {
   position: absolute;
   right: -72px;
@@ -218,7 +220,6 @@ export default {
   color: #888;
   white-space: nowrap;
 }
-
 .secondary-date {
   position: absolute;
   top: -18px;
@@ -227,7 +228,6 @@ export default {
   font-size: 10px;
   color: #888;
 }
-
 .bar-dot {
   position: absolute;
   right: 0;
@@ -238,12 +238,7 @@ export default {
   border: 2px solid white;
   box-shadow: 0 1px 4px rgba(0,0,0,0.2);
 }
-
-.secondary-dot {
-  background: #667eea !important;
-  top: 50%;
-}
-
+.secondary-dot { background: #667eea !important; top: 50%; }
 .x-axis {
   display: flex;
   justify-content: space-between;
@@ -251,21 +246,13 @@ export default {
   margin-top: 8px;
 }
 .axis-label { font-size: 10px; color: #aaa; }
-
-/* Ranking */
-.ranking-section {
-  display: flex;
-  flex-direction: column;
-  height: 100%;
-}
-
+.ranking-section { display: flex; flex-direction: column; height: 100%; }
 .ranking-header {
   display: flex;
   gap: 8px;
   justify-content: flex-end;
   margin-bottom: 10px;
 }
-
 .btn-classify, .btn-filter {
   display: flex;
   align-items: center;
@@ -281,9 +268,7 @@ export default {
 .btn-classify { background: #1F285F; color: white; }
 .btn-filter { background: #eaf1fb; color: #1F285F; border: 1px solid #dde6f0; }
 .btn-classify:hover, .btn-filter:hover { opacity: 0.85; }
-
 .ranking-table { border-radius: 10px; overflow: hidden; border: 1px solid #dde6f0; }
-
 .ranking-head {
   display: flex;
   justify-content: space-between;
@@ -294,7 +279,6 @@ export default {
   background: #f5f8ff;
   text-transform: uppercase;
 }
-
 .ranking-row {
   display: flex;
   justify-content: space-between;
@@ -303,17 +287,16 @@ export default {
   border-top: 1px solid #eaf1fb;
   font-size: 13px;
 }
+.ranking-row.clickable:hover { background: #eaf1fb !important; }
 .row-even { background: #fafcff; }
 .turma-name { color: #1F285F; font-weight: 600; }
 .turma-pct { color: #1F285F; font-weight: 700; }
-
 .no-data {
   text-align: center;
   color: #aaa;
   padding: 32px;
   font-size: 14px;
 }
-
 @media (max-width: 768px) {
   .chart-content { grid-template-columns: 1fr; }
 }
