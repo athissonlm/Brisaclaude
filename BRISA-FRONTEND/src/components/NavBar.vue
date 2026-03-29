@@ -2,13 +2,24 @@
   <nav class="navbar">
     <div class="nav-container">
       <div class="nav-brand">
-        <router-link to="/dashboard" class="brand-link">
+        <router-link to="/home" class="brand-link">
           <img src="https://inscricoesrestic.brisabr.com.br/_next/image?url=%2Flogo_no-txt.png&w=256&q=75" alt="logo" class="logo">
           <span class="brand-name">BRISA ONE</span>
         </router-link>
       </div>
       
       <ul class="nav-menu">
+        <li>
+          <router-link to="/home" :class="{ active: $route.path === '/home' }">
+            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <rect x="3" y="3" width="7" height="7"></rect>
+              <rect x="14" y="3" width="7" height="7"></rect>
+              <rect x="14" y="14" width="7" height="7"></rect>
+              <rect x="3" y="14" width="7" height="7"></rect>
+            </svg>
+            Início
+          </router-link>
+        </li>
         <li>
           <router-link to="/dashboard" :class="{ active: $route.path === '/dashboard' }">
             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
@@ -17,7 +28,7 @@
               <rect x="14" y="14" width="7" height="7"></rect>
               <rect x="3" y="14" width="7" height="7"></rect>
             </svg>
-            Início
+            Dashboards
           </router-link>
         </li>
         <li>

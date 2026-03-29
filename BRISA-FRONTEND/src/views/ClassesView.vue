@@ -128,7 +128,7 @@ export default {
     };
 
     const editClass = (classItem) => {
-      console.log('Edit class:', classItem);
+      // TODO: implement editClass functionality
     };
 
     const handleFileSelect = (event) => {

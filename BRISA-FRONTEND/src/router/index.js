@@ -2,7 +2,8 @@ import { createRouter, createWebHistory } from 'vue-router';
 import { authService } from '@/services/authService';
 import LoginView from '@/views/LoginView.vue';
 import ResetPasswordView from '@/views/ResetPasswordView.vue';
-import DashboardView from '@/views/DashboardView.vue';
+import HomeView from '@/views/HomeView.vue';
+import DashboardsView from '@/views/DashboardView.vue';
 import PeopleView from '@/views/PeopleView.vue';
 import PersonDetailsView from '@/views/PersonDetailsView.vue';
 import ProgramsView from '@/views/ProgramsView.vue';
@@ -25,8 +26,14 @@ const routes = [
   },
   {
     path: '/dashboard',
-    name: 'Dashboard',
-    component: DashboardView,
+    name: 'Dashboards',
+    component: DashboardsView,
+    meta: { requiresAuth: true }
+  },
+  {
+    path: '/home',
+    name: 'Home',
+    component: HomeView,
     meta: { requiresAuth: true }
   },
   {
@@ -101,7 +108,7 @@ router.beforeEach((to, from, next) => {
   if (to.meta.requiresAuth && !authService.isAuthenticated()) {
     next('/');
   } else if (to.path === '/' && authService.isAuthenticated()) {
-    next('/dashboard');
+    next('/home');
   } else {
     next();
   }

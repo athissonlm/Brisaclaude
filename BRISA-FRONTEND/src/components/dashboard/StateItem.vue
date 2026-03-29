@@ -1,14 +1,16 @@
 <template>
   <g :class="{ 'hovered-state': isHoveredDelayed && isActive(state.id) }">
     <path
-        :d="state.d"
-        :fill="getStateFill(state.id)"
-        :stroke="selectedState === state.id ? '#ffffff' : '#b0c4d8'"
-        :stroke-width="selectedState === state.id ? 2 : 0.5"
-        :class="['state-path', { active: isActive(state.id), selected: selectedState === state.id }]"
-        @click="handleClick(state.id)"
-        @mouseenter="handleMouseEnter(state.id, $event)"
-        @mouseleave="handleMouseLeave"
+      :d="state.d"
+      :fill="getStateFill(state.id)"
+      :stroke="selectedState === state.id ? '#ffffff' : '#b0c4d8'"
+      :stroke-width="selectedState === state.id ? 2 : 0.5"
+      :class="['state-path', { active: isActive(state.id), selected: selectedState === state.id }]"
+      :data-state-id="state.id"
+      pointer-events="auto"
+      @click="handleClick(state.id)"
+      @mouseenter="handleMouseEnter(state.id, $event)"
+      @mouseleave="handleMouseLeave"
     >
         <title>{{ state.name }}</title>
     </path>
@@ -56,6 +58,20 @@ export default {
       isHoveredDelayed: false
     };
   },
+  watch: {
+    hovered(newVal) {
+      // Se o mouse saiu deste estado, limpar timeout e zoom
+      if (newVal !== this.state.id) {
+        if (this.hoverTimeout) {
+          clearTimeout(this.hoverTimeout);
+          this.hoverTimeout = null;
+        }
+        if (this.isHoveredDelayed) {
+          this.isHoveredDelayed = false;
+        }
+      }
+    }
+  },
   methods: {
     isActive(id) {
       return this.activeStates.includes(id);
@@ -68,7 +84,9 @@ export default {
       return color + 'aa';
     },
     handleClick(id) {
-      if (this.isActive(id)) this.$emit('select', id);
+      if (this.isActive(id)) {
+        this.$emit('select', id);
+      }
     },
     handleMouseEnter(stateId, event) {
       this.$emit('move-to-front', stateId, event);
@@ -78,13 +96,19 @@ export default {
       
       // Definir timeout para 1.5 segundos
       this.hoverTimeout = setTimeout(() => {
-        this.isHoveredDelayed = true;
+        // Só aplicar se o hovered ainda for este estado
+        if (this.hovered === stateId) {
+          this.isHoveredDelayed = true;
+        }
+        this.hoverTimeout = null;
       }, 100);
     },
     handleMouseLeave() {
       // Limpar timeout se o mouse sair antes de 1.5s
-      if (this.hoverTimeout) clearTimeout(this.hoverTimeout);
-      
+      if (this.hoverTimeout) {
+        clearTimeout(this.hoverTimeout);
+        this.hoverTimeout = null;
+      }
       this.isHoveredDelayed = false;
       this.$emit('hover-leave');
     }

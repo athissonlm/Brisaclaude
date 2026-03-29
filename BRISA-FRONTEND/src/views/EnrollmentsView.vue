@@ -193,7 +193,7 @@ export default {
     };
 
     const editEnrollment = (enrollment) => {
-      console.log('Edit enrollment:', enrollment);
+      // TODO: implement editEnrollment functionality
     };
 
     const handleFileSelect = (event) => {

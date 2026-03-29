@@ -1,9 +1,11 @@
 <template>
   <div class="brazil-map-wrapper">
     <svg
+      ref="svgRef"
       viewBox="0 0 1000 912"
       xmlns="http://www.w3.org/2000/svg"
       class="brazil-svg"
+      @mouseleave="hovered = null"
     >
       <StateItem
         v-for="state in states"
@@ -13,7 +15,7 @@
         :selected-state="selectedState"
         :active-states="activeStates"
         :state-colors="stateColors"
-        @select="(id) => emit('select', id)"
+        @select="$emit('select', $event)"
         @move-to-front="moveToFront"
         @hover-leave="hovered = null"
       />
@@ -22,7 +24,7 @@
 </template>
 
 <script>
-import { ref } from 'vue';
+import { ref, onMounted, onBeforeUnmount } from 'vue';
 import StateItem from './StateItem.vue';
 
 export default {
@@ -38,6 +40,72 @@ export default {
   emits: ['select'],
   setup(props, { emit }) {
     const hovered = ref(null);
+    const svgRef = ref(null);
+
+    const findStateAtPoint = (clientX, clientY) => {
+      try {
+        const els = (document.elementsFromPoint && document.elementsFromPoint(clientX, clientY)) || [];
+        for (const candidate of els) {
+          if (!candidate) continue;
+          const p = (candidate.closest && candidate.closest('.state-path')) || null;
+          if (p) return p;
+        }
+      } catch (err) {
+        return null;
+      }
+      return null;
+    };
+
+    const onPointerMove = (e) => {
+      try {
+        const pathEl = findStateAtPoint(e.clientX, e.clientY);
+        hovered.value = pathEl ? (pathEl.getAttribute('data-state-id') || null) : null;
+      } catch (err) {
+        hovered.value = null;
+      }
+    };
+
+    // Click handler: garante que cliques no mapa também disparem a seleção
+    const onSvgClick = (e) => {
+      try {
+        const pathEl = findStateAtPoint(e.clientX, e.clientY);
+        if (!pathEl) return;
+        const id = pathEl.getAttribute('data-state-id');
+        if (id && props.activeStates && props.activeStates.includes(id)) {
+          emit('select', id);
+        }
+      } catch (err) {
+        // silent
+      }
+    };
+
+    const onSvgPointerDown = (e) => {
+      try {
+        const pathEl = findStateAtPoint(e.clientX, e.clientY);
+        if (!pathEl) return;
+        const id = pathEl.getAttribute('data-state-id');
+        if (id && props.activeStates && props.activeStates.includes(id)) {
+          emit('select', id);
+        }
+      } catch (err) {
+        // silent
+      }
+    };
+    onMounted(() => {
+      if (svgRef.value) {
+        svgRef.value.addEventListener('pointermove', onPointerMove);
+        svgRef.value.addEventListener('click', onSvgClick);
+        svgRef.value.addEventListener('pointerdown', onSvgPointerDown);
+      }
+    });
+
+    onBeforeUnmount(() => {
+      if (svgRef.value) {
+        svgRef.value.removeEventListener('pointermove', onPointerMove);
+        svgRef.value.removeEventListener('click', onSvgClick);
+        svgRef.value.removeEventListener('pointerdown', onSvgPointerDown);
+      }
+    });
 
     // SUBSTITUA AQUI: copie cada <path> do SVG no formato abaixo.
     // O id do SVG é "BRXX" → use só "XX" (ex: "BRRS" → "RS")
@@ -96,7 +164,7 @@ export default {
       svgElement.appendChild(gElement);
     };
 
-    return { hovered, states, isActive, getStateFill, click, moveToFront };
+    return { hovered, states, isActive, getStateFill, click, moveToFront, svgRef };
   }
 };
 </script>
