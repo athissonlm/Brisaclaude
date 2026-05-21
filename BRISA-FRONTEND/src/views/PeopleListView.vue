@@ -931,7 +931,7 @@
             style="text-decoration: none; display: flex; justify-content: center; align-items: center;"
             @click="showTemplateModal = false"
           >
-            Baixar modelo .xlsx
+            Modelo de planilha
           </a>
         </div>
       </div>

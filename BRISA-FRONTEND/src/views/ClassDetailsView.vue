@@ -502,6 +502,7 @@
             </div>
           </div>
 
+          <!-- Sub-tabs Content -->
           <div v-if="etapasSubTab === 'nivelamento'" class="space-y-4">
              <div class="nivelamento-cards">
               <div class="n-card">
@@ -568,142 +569,140 @@
               <div class="spacer"></div>
               <button type="button" class="btn-primary" @click="openSendMessageModal()"><span>Enviar mensagem</span></button>
             </div>
+
+            <!-- Seção Cursos do Nivelamento -->
+            <article class="panel">
+             <div class="panel-head">
+              <h3>Cursos do Nivelamento</h3>
+             </div>
+
+             <div class="courses-list">
+               <div v-if="!courseItems || courseItems.length === 0" class="no-data">Nenhum curso encontrado para o nivelamento.</div>
+
+               <div
+                 v-for="course in courseItems"
+                 :key="course?.id"
+                 class="course-card-new"
+                 role="button"
+                 tabindex="0"
+                 @click="openCourseDetails(course)"
+                 @keydown.enter.prevent="openCourseDetails(course)"
+                 @keydown.space.prevent="openCourseDetails(course)"
+               >
+                 <div class="course-left-new">
+                   <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="course-icon">
+                     <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
+                     <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
+                   </svg>
+                   <span class="course-name-new">{{ course?.name || 'Sem nome' }}</span>
+                   <span v-if="course?.required" class="course-badge course-badge-required">Obrigatório</span>
+                   <span v-if="course?.knowledgeArea" class="course-badge">{{ course.knowledgeArea }}</span>
+                 </div>
+
+                 <div class="course-right-new">
+                   <div class="course-stats-new">
+                     <div class="course-stats-text">{{ course?.completedCount || 0 }} concluídos · {{ course?.pendingCount || 0 }} pendentes</div>
+                     <div class="progress-container">
+                       <div class="progress-bar">
+                         <div class="progress-fill" :style="{ width: (course?.completionPct || 0) + '%', backgroundColor: getCompletionColor(course?.completionPct || 0) }"></div>
+                       </div>
+                       <span class="progress-pct">{{ course?.completionPct || 0 }}%</span>
+                      </div>
+                   </div>
+                   <div class="course-media">Média: {{ course?.completionPct || 0 }}</div>
+                  </div>
+                </div>
+             </div>
+
+             <div class="alert-banner alert-warning">
+               <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                 <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3.05L13.71 3.86a2 2 0 0 0-3.42 0z" />
+                 <line x1="12" y1="9" x2="12" y2="13" />
+                 <line x1="12" y1="17" x2="12.01" y2="17" />
+               </svg>
+               <div class="alert-copy">
+                 <strong>Cursos obrigatórios com pendências</strong>
+                 <p>37 alunos ainda possuem pendências em cursos obrigatórios</p>
+               </div>
+               <button type="button" class="alert-link" @click="showSendMessageModal = true">Enviar mensagem</button>
+             </div>
+            </article>
+
+            <!-- Seção Prova Final do Nivelamento -->
+            <article class="panel">
+             <div class="panel-head">
+               <h3>Prova Final do Nivelamento</h3>
+             </div>
+
+             <div class="exam-stats">
+               <div class="exam-stat-card">
+                 <div class="exam-stat-label">Data da prova</div>
+                 <div class="exam-stat-value">{{ overviewTimeline[5]?.date || '30/04' }}</div>
+               </div>
+               <div class="exam-stat-card">
+                 <div class="exam-stat-label">Questões</div>
+                 <div class="exam-stat-value">--</div>
+               </div>
+               <div class="exam-stat-card">
+                 <div class="exam-stat-label">Duração</div>
+                 <div class="exam-stat-value">--</div>
+               </div>
+               <div class="exam-stat-card">
+                 <div class="exam-stat-label">Média geral</div>
+                 <div class="exam-stat-value teal">--</div>
+               </div>
+               <div class="exam-stat-card">
+                 <div class="exam-stat-label">Maior nota</div>
+                 <div class="exam-stat-value emerald">--</div>
+               </div>
+               <div class="exam-stat-card">
+                 <div class="exam-stat-label">Nota de corte</div>
+                 <div class="exam-stat-value amber">--</div>
+               </div>
+             </div>
+
+             <div class="exam-criteria">
+               <p><strong>Critério de aprovação:</strong> A aprovação no nivelamento considera nota igual ou superior a 50% da maior nota obtida na turma, além da conclusão dos cursos obrigatórios.</p>
+             </div>
+            </article>
+
+            <!-- Seção Alunos do Nivelamento -->
+            <article class="panel">
+             <div class="panel-head">
+               <h3>Alunos do Nivelamento</h3>
+             </div>
+
+             <div class="students-table">
+               <table>
+                 <thead>
+                   <tr>
+                     <th>Nome</th>
+                     <th>CPF</th>
+                     <th>Progresso médio</th>
+                     <th>Status</th>
+                   </tr>
+                 </thead>
+                 <tbody>
+                   <tr v-for="student in getNivelamentoStudents" :key="student.id">
+                     <td>{{ student.name || student.id }}</td>
+                     <td>{{ student.cpf || '-' }}</td>
+                     <td>
+                       <div class="student-progress">
+                         <div class="student-progress-bar">
+                           <div class="student-progress-fill" :style="{ width: student.avg + '%' }"></div>
+                         </div>
+                         <small>{{ student.avg }}%</small>
+                       </div>
+                     </td>
+                     <td><span class="status-pill" :class="student.avg===100 ? 'status-approved' : 'status-inprogress'">{{ student.avg===100 ? 'Concluído' : 'Em andamento' }}</span></td>
+                   </tr>
+                 </tbody>
+               </table>
+             </div>
+            </article>
           </div>
 
-          <template v-if="etapasSubTab === 'nivelamento'">
-          <!-- Seção Cursos do Nivelamento -->
-          <article class="panel">
-           <div class="panel-head">
-            <h3>Cursos do Nivelamento</h3>
-           </div>
-
-           <div class="courses-list">
-             <div v-if="!courseItems || courseItems.length === 0" class="no-data">Nenhum curso encontrado para o nivelamento.</div>
-
-             <div
-               v-for="course in courseItems"
-               :key="course?.id"
-               class="course-card-new"
-               role="button"
-               tabindex="0"
-               @click="openCourseDetails(course)"
-               @keydown.enter.prevent="openCourseDetails(course)"
-               @keydown.space.prevent="openCourseDetails(course)"
-             >
-               <div class="course-left-new">
-                 <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" class="course-icon">
-                   <path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20" />
-                   <path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2Z" />
-                 </svg>
-                 <span class="course-name-new">{{ course?.name || 'Sem nome' }}</span>
-                 <span v-if="course?.required" class="course-badge course-badge-required">Obrigatório</span>
-                 <span v-if="course?.knowledgeArea" class="course-badge">{{ course.knowledgeArea }}</span>
-               </div>
-
-               <div class="course-right-new">
-                 <div class="course-stats-new">
-                   <div class="course-stats-text">{{ course?.completedCount || 0 }} concluídos · {{ course?.pendingCount || 0 }} pendentes</div>
-                   <div class="progress-container">
-                     <div class="progress-bar">
-                       <div class="progress-fill" :style="{ width: (course?.completionPct || 0) + '%', backgroundColor: getCompletionColor(course?.completionPct || 0) }"></div>
-                     </div>
-                     <span class="progress-pct">{{ course?.completionPct || 0 }}%</span>
-                    </div>
-                 </div>
-                 <div class="course-media">Média: {{ course?.completionPct || 0 }}</div>
-                </div>
-              </div>
-           </div>
-
-           <div class="alert-banner alert-warning">
-             <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-               <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3.05L13.71 3.86a2 2 0 0 0-3.42 0z" />
-               <line x1="12" y1="9" x2="12" y2="13" />
-               <line x1="12" y1="17" x2="12.01" y2="17" />
-             </svg>
-             <div class="alert-copy">
-               <strong>Cursos obrigatórios com pendências</strong>
-               <p>37 alunos ainda possuem pendências em cursos obrigatórios</p>
-             </div>
-             <button type="button" class="alert-link" @click="showSendMessageModal = true">Enviar mensagem</button>
-           </div>
-          </article>
-
-          <!-- Seção Prova Final do Nivelamento -->
-          <article class="panel">
-           <div class="panel-head">
-             <h3>Prova Final do Nivelamento</h3>
-           </div>
-
-           <div class="exam-stats">
-             <div class="exam-stat-card">
-               <div class="exam-stat-label">Data da prova</div>
-               <div class="exam-stat-value">{{ overviewTimeline[5]?.date || '30/04' }}</div>
-             </div>
-             <div class="exam-stat-card">
-               <div class="exam-stat-label">Questões</div>
-               <div class="exam-stat-value">--</div>
-             </div>
-             <div class="exam-stat-card">
-               <div class="exam-stat-label">Duração</div>
-               <div class="exam-stat-value">--</div>
-             </div>
-             <div class="exam-stat-card">
-               <div class="exam-stat-label">Média geral</div>
-               <div class="exam-stat-value teal">--</div>
-             </div>
-             <div class="exam-stat-card">
-               <div class="exam-stat-label">Maior nota</div>
-               <div class="exam-stat-value emerald">--</div>
-             </div>
-             <div class="exam-stat-card">
-               <div class="exam-stat-label">Nota de corte</div>
-               <div class="exam-stat-value amber">--</div>
-             </div>
-           </div>
-
-           <div class="exam-criteria">
-             <p><strong>Critério de aprovação:</strong> A aprovação no nivelamento considera nota igual ou superior a 50% da maior nota obtida na turma, além da conclusão dos cursos obrigatórios.</p>
-           </div>
-          </article>
-
-          <!-- Seção Alunos do Nivelamento -->
-          <article class="panel">
-           <div class="panel-head">
-             <h3>Alunos do Nivelamento</h3>
-           </div>
-
-           <div class="students-table">
-             <table>
-               <thead>
-                 <tr>
-                   <th>Nome</th>
-                   <th>CPF</th>
-                   <th>Progresso médio</th>
-                   <th>Status</th>
-                 </tr>
-               </thead>
-               <tbody>
-                 <tr v-for="student in getNivelamentoStudents" :key="student.id">
-                   <td>{{ student.name || student.id }}</td>
-                   <td>{{ student.cpf || '-' }}</td>
-                   <td>
-                     <div class="student-progress">
-                       <div class="student-progress-bar">
-                         <div class="student-progress-fill" :style="{ width: student.avg + '%' }"></div>
-                       </div>
-                       <small>{{ student.avg }}%</small>
-                     </div>
-                   </td>
-                   <td><span class="status-pill" :class="student.avg===100 ? 'status-approved' : 'status-inprogress'">{{ student.avg===100 ? 'Concluído' : 'Em andamento' }}</span></td>
-                 </tr>
-               </tbody>
-             </table>
-           </div>
-          </article>
-          </template>
-
-          <div v-else class="imersao-section">
+          <div v-else-if="etapasSubTab === 'imersao'" class="imersao-section">
             <div class="imersao-metrics-grid">
               <div v-for="metric in imersaoMetricsCards" :key="metric.label" class="imersao-metric-card">
                 <span class="imersao-metric-label">{{ metric.label }}</span>
@@ -1085,13 +1084,13 @@
           </div>
           <div class="modal-header-with-action">
             <h3>Importar planilha de inscritos</h3>
-            <a href="/Modelo_Inscritos.xlsx" download="Modelo_Inscritos.xlsx" class="ghost-btn hero-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <a href="/Modelo_Inscritos.xlsx" download="Modelo_Inscritos.xlsx" class="ghost-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
               </svg>
-              <span>Baixar Modelo .xlsx</span>
+              Modelo de planilha
             </a>
           </div>
           <p class="modal-desc">Envie uma planilha Excel ou CSV com os dados dos candidatos inscritos. A planilha deve conter as seguintes colunas:</p>
@@ -1141,7 +1140,17 @@
           <div class="modal-back">
             <button type="button" @click="selectedUpdateAction = null" class="back-link">← Voltar</button>
           </div>
-          <h3>Importar planilha de aprovados</h3>
+          <div class="modal-header-with-action">
+            <h3>Importar planilha de aprovados</h3>
+            <a href="/Modelo_Inscritos.xlsx" download="Modelo_Inscritos.xlsx" class="ghost-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Modelo de planilha
+            </a>
+          </div>
           <p class="modal-desc">Envie uma planilha com a lista final de candidatos aprovados. O sistema atualizará automaticamente o status de cada candidato.</p>
 
           <div class="columns-grid">
@@ -1286,13 +1295,13 @@
         <div class="modal-content submit-cursos-modal">
           <div class="modal-header-with-action" style="margin-bottom: 16px;">
             <p class="modal-desc" style="margin: 0;">Envie a planilha com os dados de conclusão e notas dos cursos</p>
-            <a href="/Modelo_Nivelamento_Cursos.xlsx" download="Modelo_Nivelamento_Cursos.xlsx" class="ghost-btn hero-btn">
-              <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <a href="/Modelo_Nivelamento_Cursos.xlsx" download="Modelo_Nivelamento_Cursos.xlsx" class="ghost-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
                 <line x1="12" y1="15" x2="12" y2="3"></line>
               </svg>
-              <span>Baixar Modelo .xlsx</span>
+              Modelo de planilha
             </a>
           </div>
 
@@ -1356,7 +1365,17 @@
         </div>
 
         <div class="modal-content submit-prova-notas-modal">
-          <p class="modal-desc">Envie a planilha com as notas finais e o desempenho por questão</p>
+          <div class="modal-header-with-action" style="margin-bottom: 16px;">
+            <p class="modal-desc" style="margin: 0;">Envie a planilha com as notas finais e o desempenho por questão</p>
+            <a href="/Modelo_Nivelamento_Notas.xlsx" download="Modelo_Nivelamento_Notas.xlsx" class="ghost-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Modelo de planilha
+            </a>
+          </div>
 
           <div class="columns-grid">
             <p class="columns-grid-title">A planilha deve conter as seguintes colunas:</p>
@@ -1421,6 +1440,18 @@
         </div>
 
         <div class="modal-content import-imersao-modal">
+          <div class="modal-header-with-action" style="margin-bottom: 16px;">
+            <p class="modal-desc" style="margin: 0;">Envie a planilha com os alunos aprovados para a etapa de imersão</p>
+            <a href="/Modelo_Imersao_Alunos.xlsx" download="Modelo_Imersao_Alunos.xlsx" class="ghost-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Modelo de planilha
+            </a>
+          </div>
+
           <input
             type="file"
             ref="fileInputImportImersao"
@@ -1472,25 +1503,36 @@
         </div>
 
         <div class="modal-content submit-imersao-notas-modal">
-          <div class="submit-imersao-type-label">Tipo de avaliação</div>
-
-          <div class="submit-imersao-type-tabs">
-            <button
-              type="button"
-              class="submit-imersao-type-btn"
-              :class="{ active: tipoAvaliacaoImersao === 'parcial' }"
-              @click="tipoAvaliacaoImersao = 'parcial'"
-            >
-              Avaliação Parcial
-            </button>
-            <button
-              type="button"
-              class="submit-imersao-type-btn"
-              :class="{ active: tipoAvaliacaoImersao === 'final' }"
-              @click="tipoAvaliacaoImersao = 'final'"
-            >
-              Avaliação Final
-            </button>
+          <div class="modal-header-with-action" style="margin-bottom: 16px;">
+            <div class="submit-imersao-type-group">
+              <div class="submit-imersao-type-label">Tipo de avaliação</div>
+              <div class="submit-imersao-type-tabs">
+                <button
+                  type="button"
+                  class="submit-imersao-type-btn"
+                  :class="{ active: tipoAvaliacaoImersao === 'parcial' }"
+                  @click="tipoAvaliacaoImersao = 'parcial'"
+                >
+                  Avaliação Parcial
+                </button>
+                <button
+                  type="button"
+                  class="submit-imersao-type-btn"
+                  :class="{ active: tipoAvaliacaoImersao === 'final' }"
+                  @click="tipoAvaliacaoImersao = 'final'"
+                >
+                  Avaliação Final
+                </button>
+              </div>
+            </div>
+            <a href="/Modelo_Nivelamento_Notas.xlsx" :download="tipoAvaliacaoImersao === 'parcial' ? 'Modelo_Avaliacao_Parcial.xlsx' : 'Modelo_Avaliacao_Final.xlsx'" class="ghost-btn">
+              <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+                <polyline points="7 10 12 15 17 10"></polyline>
+                <line x1="12" y1="15" x2="12" y2="3"></line>
+              </svg>
+              Modelo de planilha
+            </a>
           </div>
 
           <input
@@ -3395,6 +3437,29 @@ export default {
 
 .back-btn:hover {
   color: var(--brand-900);
+}
+
+.ghost-btn {
+  height: 44px;
+  padding: 0 16px;
+  border-radius: 12px;
+  border: 1px solid #e2e8f0;
+  background: #fff;
+  color: #13233f;
+  font-size: 14px;
+  font-weight: 700;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  cursor: pointer;
+  transition: all 0.2s ease;
+  white-space: nowrap;
+  text-decoration: none;
+}
+
+.ghost-btn:hover {
+  background: #f8fafc;
+  border-color: #cbd5e1;
 }
 
 .hero-actions {
