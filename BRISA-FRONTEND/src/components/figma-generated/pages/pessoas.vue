@@ -913,10 +913,9 @@
         </div>
         
         <div class="modal-actions template-actions">
-          <a 
-            href="/Modelo_Planilha_Pessoas.xlsx" 
-            download="Modelo_Planilha_Pessoas.xlsx" 
-            class="primary-btn" 
+          <a
+            href="/Importacao_de_Planilhas/Pessoas/Modelo_Planilha_Pessoas.xlsx"
+            download="Modelo_Planilha_Pessoas.xlsx"            class="primary-btn" 
             style="text-decoration: none; display: flex; justify-content: center; align-items: center;"
             @click="showTemplateModal = false"
           >

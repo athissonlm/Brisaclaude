@@ -1084,7 +1084,7 @@
           </div>
           <div class="modal-header-with-action">
             <h3>Importar planilha de inscritos</h3>
-            <a href="/Modelo_Inscritos.xlsx" download="Modelo_Inscritos.xlsx" class="ghost-btn">
+            <a href="/Importacao_de_Planilhas/Processo_Seletivo/Modelo_Planilha_Inscritos.xlsx" download="Modelo_Planilha_Inscritos.xlsx" class="ghost-btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
@@ -1142,7 +1142,7 @@
           </div>
           <div class="modal-header-with-action">
             <h3>Importar planilha de aprovados</h3>
-            <a href="/Modelo_Inscritos.xlsx" download="Modelo_Inscritos.xlsx" class="ghost-btn">
+            <a href="/Importacao_de_Planilhas/Processo_Seletivo/Modelo_Planilha_Aprovados_Inscrição.xlsx" download="Modelo_Planilha_Aprovados_Inscrição.xlsx" class="ghost-btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
@@ -1295,7 +1295,7 @@
         <div class="modal-content submit-cursos-modal">
           <div class="modal-header-with-action" style="margin-bottom: 16px;">
             <p class="modal-desc" style="margin: 0;">Envie a planilha com os dados de conclusão e notas dos cursos</p>
-            <a href="/Modelo_Nivelamento_Cursos.xlsx" download="Modelo_Nivelamento_Cursos.xlsx" class="ghost-btn">
+            <a href="/Importacao_de_Planilhas/Nivelamento/Modelo_Planilha_Dados_dos_Cursos_Nivelamento.xlsx" download="Modelo_Planilha_Dados_dos_Cursos_Nivelamento.xlsx" class="ghost-btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
@@ -1367,7 +1367,7 @@
         <div class="modal-content submit-prova-notas-modal">
           <div class="modal-header-with-action" style="margin-bottom: 16px;">
             <p class="modal-desc" style="margin: 0;">Envie a planilha com as notas finais e o desempenho por questão</p>
-            <a href="/Modelo_Nivelamento_Notas.xlsx" download="Modelo_Nivelamento_Notas.xlsx" class="ghost-btn">
+            <a href="/Importacao_de_Planilhas/Nivelamento/Modelo_Planilha_Notas_Nivelamento.xlsx" download="Modelo_Planilha_Notas_Nivelamento.xlsx" class="ghost-btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
@@ -1442,7 +1442,7 @@
         <div class="modal-content import-imersao-modal">
           <div class="modal-header-with-action" style="margin-bottom: 16px;">
             <p class="modal-desc" style="margin: 0;">Envie a planilha com os alunos aprovados para a etapa de imersão</p>
-            <a href="/Modelo_Imersao_Alunos.xlsx" download="Modelo_Imersao_Alunos.xlsx" class="ghost-btn">
+            <a href="/Importacao_de_Planilhas/Imersao/Modelo_Planilha_Aprovados_Nivelamento.xlsx" download="Modelo_Planilha_Aprovados_Nivelamento.xlsx" class="ghost-btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
@@ -1504,28 +1504,8 @@
 
         <div class="modal-content submit-imersao-notas-modal">
           <div class="modal-header-with-action" style="margin-bottom: 16px;">
-            <div class="submit-imersao-type-group">
-              <div class="submit-imersao-type-label">Tipo de avaliação</div>
-              <div class="submit-imersao-type-tabs">
-                <button
-                  type="button"
-                  class="submit-imersao-type-btn"
-                  :class="{ active: tipoAvaliacaoImersao === 'parcial' }"
-                  @click="tipoAvaliacaoImersao = 'parcial'"
-                >
-                  Avaliação Parcial
-                </button>
-                <button
-                  type="button"
-                  class="submit-imersao-type-btn"
-                  :class="{ active: tipoAvaliacaoImersao === 'final' }"
-                  @click="tipoAvaliacaoImersao = 'final'"
-                >
-                  Avaliação Final
-                </button>
-              </div>
-            </div>
-            <a href="/Modelo_Nivelamento_Notas.xlsx" :download="tipoAvaliacaoImersao === 'parcial' ? 'Modelo_Avaliacao_Parcial.xlsx' : 'Modelo_Avaliacao_Final.xlsx'" class="ghost-btn">
+            <p class="modal-desc" style="margin: 0;">Envie a planilha com as notas parciais e finais dos alunos</p>
+            <a href="/Importacao_de_Planilhas/Imersao/Modelo_Planilha_Alunos_Imersão.xlsx" download="Modelo_Planilha_Alunos_Imersão.xlsx" class="ghost-btn">
               <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
                 <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
                 <polyline points="7 10 12 15 17 10"></polyline>
@@ -1949,7 +1929,6 @@ export default {
     const showImportImersaoModal = ref(false);
     const showSubmitNotasImersaoModal = ref(false);
     const showAtualizarPresencaImersaoModal = ref(false);
-    const tipoAvaliacaoImersao = ref('parcial');
     const showSendMessageModal = ref(false);
     const sendMessageRecipients = ref('all');
     const sendMessageSubject = ref('Pendência na conclusão dos cursos obrigatórios');
@@ -3317,7 +3296,6 @@ export default {
       showImportImersaoModal,
       showSubmitNotasImersaoModal,
       showAtualizarPresencaImersaoModal,
-      tipoAvaliacaoImersao,
       sendMessageRecipients,
       sendMessageSubject,
       sendMessageBody,
