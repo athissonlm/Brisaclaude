@@ -1,9 +1,9 @@
-<template>
+﻿<template>
   <div class="step-container">
     
     <div class="step-header">
        <h2>Dados do Programa</h2>
-       <p>Preencha as informações gerais do edital e do programa</p>
+      <p>Preencha as informações gerais do edital e do programa</p>
     </div>
 
     <div class="card-section">
@@ -18,8 +18,8 @@
            <input v-model="formData.programName" @keydown.enter="$event.target.blur()" type="text" placeholder="Ex: Programa de Formação em Tecnologia" class="form-input"/>
          </div>
          <div class="form-group">
-           <label>Nome da Turma/Edição <span class="required">*</span></label>
-           <input v-model="formData.batchName" @keydown.enter="$event.target.blur()" type="text" placeholder="Ex: Turma 2026.1" class="form-input"/>
+           <label>Turma/Edição <span class="required">*</span></label>
+           <input v-model="formData.batchName" @keydown.enter="$event.target.blur()" type="text" placeholder="Ex: 2026.1" class="form-input"/>
          </div>
        </div>
 
@@ -28,7 +28,22 @@
          <input v-model="formData.executor" @keydown.enter="$event.target.blur()" type="text" placeholder="Ex: Universidade Federal de Tecnologia" class="form-input"/>
        </div>
 
-       <div class="form-group" style="margin-bottom: 0;">
+       <div class="form-row three-cols-special">
+         <div class="form-group">
+           <label>Entidade de Fomento <span class="required">*</span></label>
+           <input v-model="formData.fundingEntity" @keydown.enter="$event.target.blur()" type="text" placeholder="Ex: Softex" class="form-input"/>
+         </div>
+         <div class="form-group">
+           <label>Coordenador Geral <span class="required">*</span></label>
+           <input v-model="formData.generalCoordinator" @keydown.enter="$event.target.blur()" type="text" placeholder="Ex: Nome do coordenador" class="form-input"/>
+         </div>
+         <div class="form-group">
+           <label>Valor do Programa <span class="required">*</span></label>
+           <input v-model="formData.programValue" @keydown.enter="$event.target.blur()" type="number" min="0" step="0.01" placeholder="Ex: 150000.00" class="form-input"/>
+         </div>
+       </div>
+
+<div class="form-group" style="margin-bottom: 0;">
          <label>Objetivo do Programa <span class="required">*</span></label>
          <textarea v-model="formData.objective" placeholder="Descreva o propósito e os resultados esperados deste programa..." class="form-textarea" rows="3"></textarea>
        </div>
@@ -43,7 +58,7 @@
        <div class="form-row two-cols">
          <div class="form-group">
            <label>Localidade (Cidade/Estado)</label>
-           <input v-model="formData.location" @keydown.enter="$event.target.blur()" type="text" placeholder="Ex: São Paulo, SP (ou Nacional)" class="form-input"/>
+           <input v-model="formData.location" @keydown.enter="$event.target.blur()" type="text" placeholder="Ex: Maceió/AL" class="form-input"/>
          </div>
          
          <div class="form-group relative">
@@ -61,7 +76,18 @@
          </div>
        </div>
 
-       <div class="form-group" style="margin-bottom: 0;">
+       <div class="form-row two-cols">
+         <div class="form-group">
+           <label>Site Oficial</label>
+           <input v-model="formData.officialWebsite" @keydown.enter="$event.target.blur()" type="url" placeholder="Ex: https://brisa.org/programa" class="form-input"/>
+         </div>
+         <div class="form-group">
+           <label>Observações gerais</label>
+           <input v-model="formData.observations" @keydown.enter="$event.target.blur()" type="text" placeholder="Informações complementares do programa" class="form-input"/>
+         </div>
+       </div>
+
+<div class="form-group" style="margin-bottom: 0;">
          <label>Empresas ou Instituições Parceiras</label>
          <div class="partner-input-row">
            <input
@@ -111,9 +137,9 @@
            
            <div v-if="activeDatePicker === 'publishDate'" class="custom-calendar">
               <div class="calendar-header">
-                 <button type="button" class="cal-btn" @click.stop="$emit('prev-month')">‹</button>
+                 <button type="button" class="cal-btn" @click.stop="$emit('prev-month')">?</button>
                  <span>{{ monthNames[calendarDate.getMonth()] }} {{ calendarDate.getFullYear() }}</span>
-                 <button type="button" class="cal-btn" @click.stop="$emit('next-month')">›</button>
+                 <button type="button" class="cal-btn" @click.stop="$emit('next-month')">?</button>
               </div>
               <div class="calendar-grid">
                  <span v-for="d in weekDays" :key="d" class="cal-weekday">{{ d }}</span>
@@ -130,9 +156,9 @@
            </div>
            <div v-if="activeDatePicker === 'startDate'" class="custom-calendar">
               <div class="calendar-header">
-                 <button type="button" class="cal-btn" @click.stop="$emit('prev-month')">‹</button>
+                 <button type="button" class="cal-btn" @click.stop="$emit('prev-month')">?</button>
                  <span>{{ monthNames[calendarDate.getMonth()] }} {{ calendarDate.getFullYear() }}</span>
-                 <button type="button" class="cal-btn" @click.stop="$emit('next-month')">›</button>
+                 <button type="button" class="cal-btn" @click.stop="$emit('next-month')">?</button>
               </div>
               <div class="calendar-grid">
                  <span v-for="d in weekDays" :key="d" class="cal-weekday">{{ d }}</span>
@@ -149,9 +175,9 @@
            </div>
            <div v-if="activeDatePicker === 'endDate'" class="custom-calendar">
               <div class="calendar-header">
-                 <button type="button" class="cal-btn" @click.stop="$emit('prev-month')">‹</button>
+                 <button type="button" class="cal-btn" @click.stop="$emit('prev-month')">?</button>
                  <span>{{ monthNames[calendarDate.getMonth()] }} {{ calendarDate.getFullYear() }}</span>
-                 <button type="button" class="cal-btn" @click.stop="$emit('next-month')">›</button>
+                 <button type="button" class="cal-btn" @click.stop="$emit('next-month')">?</button>
               </div>
               <div class="calendar-grid">
                  <span v-for="d in weekDays" :key="d" class="cal-weekday">{{ d }}</span>
@@ -213,3 +239,4 @@ export default {
 <style scoped>
 /* O CSS Global já lida com todo o layout. A tag scoped garante proteção aqui. */
 </style>
+

@@ -1116,21 +1116,22 @@ const educationStatusOptions = computed(() => {
 });
 
 const normalize = (value) => (value ?? '').toString().toLowerCase();
+const normalizeKey = (value) => normalize(value).normalize('NFD').replace(/[\u0300-\u036f]/g, '');
 const hasValue = (value) => !!(value ?? '').toString().trim();
 const enrollmentPersonId = (enrollment) => enrollment?.people?.id ?? enrollment?.peopleId ?? enrollment?.personId ?? null;
 const enrollmentClassId = (enrollment) => enrollment?.classModel?.id ?? enrollment?.turmaId ?? enrollment?.classId ?? enrollment?.turma?.id ?? enrollment?.class_id ?? null;
 const enrollmentProgramId = (enrollment) => enrollment?.classModel?.program?.id ?? enrollment?.programId ?? enrollment?.program?.id ?? enrollment?.programaId ?? null;
 
 const stageLabel = (name) => {
-  const normalized = normalize(name);
-  if (normalized.includes('imersao')) return 'Imersao';
+  const normalized = normalizeKey(name);
+  if (normalized.includes('imersao')) return 'Imersão';
   if (normalized.includes('nivelamento')) return 'Nivelamento';
-  if (normalized.includes('selecao') || normalized.includes('inscricao')) return 'Inscricao';
+  if (normalized.includes('selecao') || normalized.includes('inscricao')) return 'Inscrição';
   return name || '-';
 };
 
 const stagePriority = (label) => {
-  const normalized = normalize(label);
+  const normalized = normalizeKey(label);
   if (normalized.includes('imersao')) return 0;
   if (normalized.includes('nivelamento')) return 1;
   if (normalized.includes('inscricao') || normalized.includes('selecao')) return 2;
@@ -1425,9 +1426,9 @@ const newRegistrationsTrend = computed(() => {
 });
 
 const tabs = computed(() => ([
-  { value: 'active', label: 'Pessoas Ativas', count: activePeopleCount.value },
-  { value: 'programs', label: 'Programas em Andamento', count: activeProgramsCount.value },
-  { value: 'all', label: 'Todas as Pessoas', count: totalPeople.value }
+  { value: 'active', label: 'Pessoas ativas', count: activePeopleCount.value },
+  { value: 'programs', label: 'Programas em andamento', count: activeProgramsCount.value },
+  { value: 'all', label: 'Todas as pessoas', count: totalPeople.value }
 ]));
 
 const advancedFiltersCount = computed(() => Object.values(advancedFilters.value).filter(Boolean).length);
@@ -1677,8 +1678,8 @@ const parseUploadFile = async (file) => {
     const idxCourse = getColumnIndex(headers, ['Curso'], 7);
     const idxEmail = getColumnIndex(headers, ['E-mail', 'Email'], 8);
     const idxCota = getColumnIndex(headers, ['Cota'], 9);
-    const idxEducationType = getColumnIndex(headers, ['Tipo de formação', 'Tipo de formacao', 'Formação'], 10);
-    const idxEducationStatus = getColumnIndex(headers, ['Status da formação', 'Status da formacao', 'Status'], 11);
+    const idxEducationType = getColumnIndex(headers, ['Tipo de formação', 'Tipo de formação', 'Formação'], 10);
+    const idxEducationStatus = getColumnIndex(headers, ['Status da formação', 'Status da formação', 'Status'], 11);
 
     return rows.slice(1).map((row, index) => {
       const record = {
@@ -1780,7 +1781,7 @@ const downloadInconsistenciesReport = () => {
   ];
 
   const workbook = XLSX.utils.book_new();
-  XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(existingSheetData), 'Ja existentes');
+  XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(existingSheetData), 'Já existentes');
   XLSX.utils.book_append_sheet(workbook, XLSX.utils.aoa_to_sheet(alertSheetData), 'Alertas');
   XLSX.writeFile(workbook, 'relatorio-inconsistencias.xlsx');
 };
@@ -2190,10 +2191,9 @@ onBeforeUnmount(() => {
 .primary-btn,
 .secondary-btn,
 .filters-button,
-.tab-item,
 .page-btn,
 .icon-btn {
-  font: inherit;
+   font: inherit;
 }
 
 .ghost-btn,
@@ -2326,31 +2326,32 @@ onBeforeUnmount(() => {
 }
 
 .tab-item {
-  background: transparent;
-  border: 0;
-  padding: 12px 2px 14px;
-  border-bottom: 2px solid transparent;
-  color: #5f728d;
-  cursor: pointer;
-  font-weight: 600;
-  white-space: nowrap;
-  display: inline-flex;
-  align-items: center;
-  gap: 8px;
+   display: inline-flex;
+   align-items: center;
+   padding: 12px 16px;
+   border: none;
+   background: transparent;
+   color: var(--slate-600);
+   font-size: 14px;
+   font-weight: 600;
+   line-height: 1.25;
+   border-bottom: 2px solid transparent;
+   cursor: pointer;
+   white-space: nowrap;
 }
 
 .tab-item.active {
-  color: #0f766e;
-  border-bottom-color: #14b8a6;
+   color: var(--teal-600);
+   border-bottom-color: var(--teal-600);
 }
 
 .tab-count {
-  background: #eef2f7;
-  color: #8a98ab;
-  border-radius: 999px;
-  padding: 2px 7px;
-  font-size: 11px;
-  font-weight: 700;
+   background: #eef2f7;
+   color: #8a98ab;
+   border-radius: 999px;
+   padding: 2px 7px;
+   font-size: 11px;
+   font-weight: 600;
 }
 
 .filters-row {
@@ -3054,19 +3055,22 @@ onBeforeUnmount(() => {
 }
 
 .upload-tab {
-  background: none;
-  border: 0;
-  padding: 10px 0;
-  font-size: 13px;
-  font-weight: 700;
-  color: #64748b;
-  border-bottom: 2px solid transparent;
-  cursor: pointer;
+   display: inline-flex;
+   align-items: center;
+   padding: 12px 16px;
+   border: none;
+   background: transparent;
+   color: var(--slate-600);
+   font-size: 14px;
+   font-weight: 600;
+   line-height: 1.25;
+   border-bottom: 2px solid transparent;
+   cursor: pointer;
 }
 
 .upload-tab.active {
-  color: #0f766e;
-  border-bottom-color: #14b8a6;
+   color: var(--teal-600);
+   border-bottom-color: var(--teal-600);
 }
 
 .upload-table {

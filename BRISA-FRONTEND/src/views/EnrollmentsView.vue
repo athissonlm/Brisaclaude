@@ -64,6 +64,7 @@
               <th>Status</th>
               <th>Matrícula</th>
               <th>Conclusão</th>
+              <th>Frequência</th>
               <th>Nota</th>
               <th>Ações</th>
             </tr>
@@ -85,6 +86,7 @@
               </td>
               <td>{{ formatDate(enrollment.enrollmentDate) }}</td>
               <td>{{ formatDate(enrollment.completionDate) }}</td>
+              <td>{{ formatFrequency(enrollment.frequency) }}</td>
               <td>{{ formatGrade(enrollment.grade) }}</td>
               <td class="actions">
                 <button type="button" class="btn-view" @click="openPerson(enrollment)">Pessoa</button>
@@ -172,7 +174,12 @@
             <input v-model="editForm.completionDate" type="date" />
           </label>
 
-          <label class="field field-full">
+          <label class="field">
+            <span>Frequência (%)</span>
+            <input v-model="editForm.frequency" type="number" min="0" max="100" step="0.1" />
+          </label>
+
+          <label class="field">
             <span>Nota final</span>
             <input v-model="editForm.grade" type="number" min="0" max="10" step="0.1" />
           </label>
@@ -232,6 +239,7 @@ export default {
       status: '',
       enrollmentDate: '',
       completionDate: '',
+      frequency: '',
       grade: ''
     });
 
@@ -339,6 +347,11 @@ export default {
       return Number(grade).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 1 });
     };
 
+    const formatFrequency = (frequency) => {
+      if (frequency === null || frequency === undefined || frequency === '') return '-';
+      return `${Number(frequency).toLocaleString('pt-BR', { minimumFractionDigits: 0, maximumFractionDigits: 1 })}%`;
+    };
+
     const formatRoleLabel = (role) => {
       if (!role) return '-';
       const normalized = String(role).toUpperCase();
@@ -392,6 +405,7 @@ export default {
         status: enrollment.status || '',
         enrollmentDate: formatDateInput(enrollment.enrollmentDate),
         completionDate: formatDateInput(enrollment.completionDate),
+        frequency: enrollment.frequency ?? '',
         grade: enrollment.grade ?? ''
       };
       resetEditMessages();
@@ -415,6 +429,7 @@ export default {
           enrollmentDate: editForm.value.enrollmentDate,
           status: editForm.value.status || null,
           completionDate: editForm.value.completionDate || null,
+          frequency: editForm.value.frequency === '' ? null : Number(editForm.value.frequency),
           grade: editForm.value.grade === '' ? null : Number(editForm.value.grade)
         });
 
@@ -500,6 +515,7 @@ export default {
       statusOptions,
       formatCPF,
       formatDate,
+      formatFrequency,
       formatGrade,
       formatRoleLabel,
       getRoleClass,
@@ -889,3 +905,4 @@ tbody tr:hover {
   }
 }
 </style>
+

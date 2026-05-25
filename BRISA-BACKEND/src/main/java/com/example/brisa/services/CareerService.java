@@ -107,7 +107,7 @@ public class CareerService {
         EnrollmentModel enrollment = null;
         if (request.getEnrollmentId() != null) {
             enrollment = enrollmentRepository.findById(request.getEnrollmentId())
-                    .orElseThrow(() -> new ResourceNotFoundException("Matricula nao encontrada com id: " + request.getEnrollmentId()));
+                    .orElseThrow(() -> new ResourceNotFoundException("Matrícula não encontrada com id: " + request.getEnrollmentId()));
         }
 
         PeopleModel person = resolvePerson(request.getPeopleId(), enrollment);
@@ -115,7 +115,7 @@ public class CareerService {
         ProgramModel program = resolveProgram(request.getProgramId(), classModel, enrollment);
 
         if (enrollment != null && person != null && !person.getId().equals(enrollment.getPeople().getId())) {
-            throw new ValidationException(List.of("O peopleId informado nao corresponde a matricula selecionada."));
+            throw new ValidationException(List.of("O peopleId informado não corresponde à matrícula selecionada."));
         }
 
         CareerProgressionModel entity = new CareerProgressionModel();
@@ -169,7 +169,7 @@ public class CareerService {
 
         logAutomationEvent(
                 LogAction.SYSTEM_INFO,
-                "Configuracao da automacao de carreira atualizada",
+                "Configuração da automação de carreira atualizada",
                 "UPDATE",
                 saved,
                 userId,
@@ -191,12 +191,12 @@ public class CareerService {
         CareerAutomationSettingsModel savedSettings = careerAutomationSettingsRepository.save(settings);
 
         if (!emailService.isMailConfigured()) {
-            throw new ValidationException(List.of("O servidor de e-mail ainda nao esta configurado para enviar os acompanhamentos da carreira."));
+            throw new ValidationException(List.of("O servidor de e-mail ainda não está configurado para enviar os acompanhamentos da carreira."));
         }
 
         String recipientEmail = trimToNull(testRecipientEmail);
         if (recipientEmail == null) {
-            throw new ValidationException(List.of("Nao foi possivel identificar o e-mail do usuario autenticado para o teste da automacao."));
+            throw new ValidationException(List.of("Não foi possível identificar o e-mail do usuário autenticado para o teste da automação."));
         }
 
         String subject = buildAutomationSubject(savedSettings, true, null);
@@ -207,7 +207,7 @@ public class CareerService {
         } catch (MessagingException error) {
             logAutomationEvent(
                     LogAction.SYSTEM_WARNING,
-                    "Falha ao enviar o e-mail de teste da automacao de carreira",
+                    "Falha ao enviar o e-mail de teste da automação de carreira",
                     "TEST_FAILED",
                     savedSettings,
                     userId,
@@ -218,7 +218,7 @@ public class CareerService {
                     )
             );
 
-            throw new ValidationException(List.of("Nao foi possivel enviar o e-mail de teste agora. Verifique a configuracao do servidor de e-mail."));
+            throw new ValidationException(List.of("Não foi possível enviar o e-mail de teste agora. Verifique a configuração do servidor de e-mail."));
         }
 
         savedSettings.setLastTestAt(LocalDateTime.now());
@@ -226,7 +226,7 @@ public class CareerService {
 
         logAutomationEvent(
                 LogAction.SYSTEM_INFO,
-                "E-mail de teste da automacao de carreira enviado",
+                "E-mail de teste da automação de carreira enviado",
                 "TEST",
                 updatedSettings,
                 userId,
@@ -258,7 +258,7 @@ public class CareerService {
         if (!emailService.isMailConfigured()) {
             logAutomationEvent(
                     LogAction.SYSTEM_WARNING,
-                    "Automacao de carreira pausada por falta de configuracao do servidor de e-mail",
+                    "Automação de carreira pausada por falta de configuração do servidor de e-mail",
                     "SKIPPED",
                     settings,
                     null,
@@ -484,7 +484,7 @@ public class CareerService {
                 .replace("\n", "<br>");
 
         String checkpointCopy = testMessage
-                ? "Este e um e-mail de teste da automacao de acompanhamento da carreira."
+                ? "Este é um e-mail de teste da automação de acompanhamento da carreira."
                 : String.format(
                         Locale.ROOT,
                         "Este contato faz parte do checkpoint de %d meses apos a conclusao do seu ciclo no programa.",
@@ -509,7 +509,7 @@ public class CareerService {
                           <p style="margin:0 0 8px;font-size:12px;text-transform:uppercase;letter-spacing:0.12em;color:#64748b;font-weight:700;">Escopo do acompanhamento</p>
                           <p style="margin:0;font-size:14px;line-height:1.6;"><strong>Programa:</strong> %s<br><strong>Turma:</strong> %s</p>
                         </div>
-                        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">Se possivel, responda este e-mail com sua situacao profissional atual. Seu retorno ajuda o BRISA a acompanhar o impacto real da formacao.</p>
+                        <p style="margin:0 0 14px;font-size:15px;line-height:1.6;">Se possível, responda este e-mail com sua situação profissional atual. Seu retorno ajuda o BRISA a acompanhar o impacto real da formação.</p>
                         <p style="margin:24px 0 0;font-size:14px;line-height:1.6;">Abracos,<br><strong>Equipe BRISA</strong></p>
                       </div>
                     </div>
@@ -637,7 +637,7 @@ public class CareerService {
         }
 
         return programRepository.findById(programId)
-                .orElseThrow(() -> new ResourceNotFoundException("Programa nao encontrado com id: " + programId));
+                .orElseThrow(() -> new ResourceNotFoundException("Programa não encontrado com id: " + programId));
     }
 
     private ClassModel resolveClassForSettings(Long classId, ProgramModel scopedProgram) {
@@ -646,10 +646,10 @@ public class CareerService {
         }
 
         ClassModel classModel = classRepository.findById(classId)
-                .orElseThrow(() -> new ResourceNotFoundException("Turma nao encontrada com id: " + classId));
+                .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada com id: " + classId));
 
         if (scopedProgram != null && (classModel.getProgram() == null || !scopedProgram.getId().equals(classModel.getProgram().getId()))) {
-            throw new ValidationException(List.of("A turma selecionada nao pertence ao programa escolhido para a automacao."));
+            throw new ValidationException(List.of("A turma selecionada não pertence ao programa escolhido para a automação."));
         }
 
         return classModel;
@@ -660,10 +660,10 @@ public class CareerService {
             return enrollment.getPeople();
         }
         if (peopleId == null) {
-            throw new ValidationException(List.of("Nao foi possivel resolver a pessoa do acompanhamento."));
+            throw new ValidationException(List.of("Não foi possível resolver a pessoa do acompanhamento."));
         }
         return peopleRepository.findById(peopleId)
-                .orElseThrow(() -> new ResourceNotFoundException("Pessoa nao encontrada com id: " + peopleId));
+                .orElseThrow(() -> new ResourceNotFoundException("Pessoa não encontrada com id: " + peopleId));
     }
 
     private ClassModel resolveClass(Long classId, EnrollmentModel enrollment) {
@@ -674,7 +674,7 @@ public class CareerService {
             return null;
         }
         return classRepository.findById(classId)
-                .orElseThrow(() -> new ResourceNotFoundException("Turma nao encontrada com id: " + classId));
+                .orElseThrow(() -> new ResourceNotFoundException("Turma não encontrada com id: " + classId));
     }
 
     private ProgramModel resolveProgram(Long programId, ClassModel classModel, EnrollmentModel enrollment) {
@@ -688,7 +688,7 @@ public class CareerService {
             return null;
         }
         return programRepository.findById(programId)
-                .orElseThrow(() -> new ResourceNotFoundException("Programa nao encontrado com id: " + programId));
+                .orElseThrow(() -> new ResourceNotFoundException("Programa não encontrado com id: " + programId));
     }
 
     private LocalDate parseRequiredDate(String value, String message, List<String> errors) {

@@ -124,8 +124,8 @@ public class ProgramIntegrationService {
                 allItems.size(),
                 allItems.stream().filter(item -> "andamento".equalsIgnoreCase(item.status())).count(),
                 allItems.stream().filter(item -> "inscricao".equalsIgnoreCase(item.status())).count(),
-                allItems.stream().filter(item -> "Imersao".equalsIgnoreCase(item.etapaAtual())).count(),
-                allItems.stream().filter(item -> "Nivelamento".equalsIgnoreCase(item.etapaAtual())).count(),
+                allItems.stream().filter(item -> normalize(item.etapaAtual()).contains("imersao")).count(),
+                allItems.stream().filter(item -> normalize(item.etapaAtual()).contains("nivelamento")).count(),
                 allItems.stream().filter(item -> "encerrado".equalsIgnoreCase(item.status())).count()
         );
 
@@ -162,7 +162,7 @@ public class ProgramIntegrationService {
         }
 
         ProgramModel program = programRepository.findById(programId)
-                .orElseThrow(() -> new ResourceNotFoundException("Programa nao encontrado com id: " + programId));
+                .orElseThrow(() -> new ResourceNotFoundException("Programa não encontrado com id: " + programId));
 
         if (classRepository.findByCode(request.getNomeTurma().trim()).isPresent()) {
             throw new ValidationException(List.of("Ja existe uma turma com esse nome."));
@@ -220,6 +220,7 @@ public class ProgramIntegrationService {
 
         ClassModel saved = classRepository.save(classModel);
         ensureDefaultStages(saved);
+        cloneCourseAssignments(sourceClass, saved);
 
         return new ProgramClassCreateResponseDTO(
                 saved.getId(),
@@ -271,6 +272,7 @@ public class ProgramIntegrationService {
                 partnerLabel(program, classModel),
                 localityLabel(classModel),
                 periodLabel(program, classModel),
+                program.getExecutor() != null ? program.getExecutor() : "-",
                 status,
                 etapaAtual,
                 inscricao,
@@ -305,7 +307,7 @@ public class ProgramIntegrationService {
                 partnerLabel(program, sourceClass),
                 program.getClasses() == null ? 0 : program.getClasses().size(),
                 templateStatus(program),
-                defaultIfBlank(program.getTargetAudience(), "Publico alvo nao informado."),
+                defaultIfBlank(program.getTargetAudience(), "Público alvo não informado."),
                 defaultIfBlank(program.getLevelingModality(), "Remoto e assincrono"),
                 defaultIfBlank(program.getLevelingDuration(), "2 meses"),
                 defaultIfBlank(program.getImmersionDuration(), "6 meses"),
@@ -314,14 +316,14 @@ public class ProgramIntegrationService {
                 firstNonNull(sourceClass != null ? sourceClass.getDefaultImmersionCapacity() : null, 50),
                 parseList(program.getQuotaCriteria(), DEFAULT_COTAS),
                 courseNames,
-                defaultIfBlank(program.getEvaluationCriteria(), "Avaliacao do grupo, pares e orientador.")
+                defaultIfBlank(program.getEvaluationCriteria(), "Avaliação do grupo, pares e orientador.")
         );
     }
 
     private InstitutionModel resolveInstitution(Long institutionId, String institutionName, String locality) {
         if (institutionId != null) {
             return institutionRepository.findById(institutionId)
-                    .orElseThrow(() -> new ResourceNotFoundException("Instituicao nao encontrada com id: " + institutionId));
+                    .orElseThrow(() -> new ResourceNotFoundException("Instituição não encontrada com id: " + institutionId));
         }
 
         if (isBlank(institutionName)) {
@@ -364,6 +366,35 @@ public class ProgramIntegrationService {
         }
     }
 
+    private void cloneCourseAssignments(ClassModel sourceClass, ClassModel targetClass) {
+        if (sourceClass == null || targetClass == null) {
+            return;
+        }
+
+        List<CourseAssignmentModel> assignments = courseAssignmentRepository.findByClassId(sourceClass.getId());
+        for (CourseAssignmentModel assignment : assignments) {
+            if (assignment.getCourse() == null) {
+                continue;
+            }
+
+            CourseAssignmentModel existing = courseAssignmentRepository.findByCourseIdAndClassId(
+                    assignment.getCourse().getId(),
+                    targetClass.getId()
+            );
+            if (existing != null) {
+                existing.setRequired(assignment.isRequired());
+                courseAssignmentRepository.save(existing);
+                continue;
+            }
+
+            CourseAssignmentModel clonedAssignment = new CourseAssignmentModel();
+            clonedAssignment.setClassModel(targetClass);
+            clonedAssignment.setCourse(assignment.getCourse());
+            clonedAssignment.setRequired(assignment.isRequired());
+            courseAssignmentRepository.save(clonedAssignment);
+        }
+    }
+
     private String partnerLabel(ProgramModel program, ClassModel classModel) {
         if (program.getProgramInstitutions() != null && !program.getProgramInstitutions().isEmpty()) {
             return program.getProgramInstitutions().stream()
@@ -371,6 +402,12 @@ public class ProgramIntegrationService {
                     .filter(Objects::nonNull)
                     .map(institution -> defaultIfBlank(institution.getAcronym(), institution.getName()))
                     .filter(value -> !isBlank(value))
+                    .findFirst()
+                    .orElse("-");
+        }
+
+        if (!isBlank(program.getPartnerNames())) {
+            return parseList(program.getPartnerNames(), List.of()).stream()
                     .findFirst()
                     .orElse("-");
         }
@@ -438,13 +475,13 @@ public class ProgramIntegrationService {
         }
 
         if (classModel == null) {
-            return "Inscricao";
+            return "Inscrição";
         }
 
         boolean hasImersao = candidates.stream()
                 .anyMatch(candidate -> normalize(candidate.getStage().getName()).contains("imersao"));
         if (hasImersao) {
-            return "Imersao";
+            return "Imersão";
         }
 
         boolean hasNivelamento = candidates.stream()
@@ -455,12 +492,12 @@ public class ProgramIntegrationService {
 
         LocalDate today = LocalDate.now();
         if (classModel.getImmersionStartDate() != null && !today.isBefore(classModel.getImmersionStartDate())) {
-            return "Imersao";
+            return "Imersão";
         }
         if (classModel.getLevelingStartDate() != null && !today.isBefore(classModel.getLevelingStartDate())) {
             return "Nivelamento";
         }
-        return "Inscricao";
+        return "Inscrição";
     }
 
     private long countCandidatesByStage(List<StageCandidateModel> candidates, String stageKeyword) {
@@ -482,9 +519,9 @@ public class ProgramIntegrationService {
         milestones.put("Divulgacao dos selecionados", classModel.getLevelingSelectionAnnouncementDate());
         milestones.put("Inicio do nivelamento", classModel.getLevelingStartDate());
         milestones.put("Prova final do nivelamento", classModel.getLevelingFinalExamDate());
-        milestones.put("Inicio da imersao", classModel.getImmersionStartDate());
-        milestones.put("Avaliacao parcial", classModel.getPartialEvaluationDate());
-        milestones.put("Avaliacao final", classModel.getFinalEvaluationDate());
+        milestones.put("Início da imersão", classModel.getImmersionStartDate());
+        milestones.put("Avaliação parcial", classModel.getPartialEvaluationDate());
+        milestones.put("Avaliação final", classModel.getFinalEvaluationDate());
         milestones.put("Emissao dos certificados", classModel.getCertificateIssueDate());
 
         return milestones.entrySet().stream()
